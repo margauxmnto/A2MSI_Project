@@ -10,41 +10,23 @@ import com.mrevellemonteiro.a2msiproject.model.Track
 class GameViewModel : ViewModel() {
     private val deezerRepository = DeezerRepository()
     private var currentTrack: Track? = null
-    private lateinit var mediaPlayer: MediaPlayer
-
-    fun initialize(context: Context) {
-        mediaPlayer = MediaPlayer()
-    }
 
     fun playNextSong() {
         viewModelScope.launch {
-            val tracks = deezerRepository.searchTracks("pop") // Vous pouvez varier la recherche
-            if (tracks.isNotEmpty()) {
-                currentTrack = tracks.random()
-                playTrack(currentTrack!!)
+            try {
+                val tracks = deezerRepository.searchTracks("pop") // ou toute autre requête de recherche
+                if (tracks.isNotEmpty()) {
+                    currentTrack = tracks.random()
+                    // Ici, vous devriez implémenter la logique pour jouer l'extrait audio
+                    // Par exemple, en utilisant un MediaPlayer
+                }
+            } catch (e: Exception) {
+                // Gérer les erreurs, par exemple en les affichant à l'utilisateur gang
             }
-        }
-    }
-
-    private fun playTrack(track: Track) {
-        mediaPlayer.reset()
-        mediaPlayer.setDataSource(track.preview)
-        mediaPlayer.prepare()
-        mediaPlayer.start()
-
-        // Arrêter après 30 secondes
-        viewModelScope.launch {
-            kotlinx.coroutines.delay(30000)
-            mediaPlayer.pause()
         }
     }
 
     fun checkGuess(guess: String): Boolean {
         return guess.equals(currentTrack?.title, ignoreCase = true)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        mediaPlayer.release()
     }
 }
