@@ -3,27 +3,26 @@ package com.mrevellemonteiro.a2msiproject
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.mrevellemonteiro.a2msiproject.ui.theme.A2MSIProjectTheme
 
 class MainActivity : ComponentActivity() {
+    private val gameViewModel = GameViewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             A2MSIProjectTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    GameScreen(gameViewModel)
                 }
             }
         }
@@ -31,17 +30,39 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun GameScreen(viewModel: GameViewModel) {
+    var guess by remember { mutableStateOf("") }
+    var score by remember { mutableStateOf(0) }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    A2MSIProjectTheme {
-        Greeting("Android")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Score: $score",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = { viewModel.playNextSong() }) {
+            Text("Jouer l'extrait")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        TextField(
+            value = guess,
+            onValueChange = { guess = it },
+            label = { Text("Entrez le titre de la chanson") }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {
+            if (viewModel.checkGuess(guess)) {
+                score++
+            }
+            guess = ""
+        }) {
+            Text("Deviner")
+        }
     }
 }
