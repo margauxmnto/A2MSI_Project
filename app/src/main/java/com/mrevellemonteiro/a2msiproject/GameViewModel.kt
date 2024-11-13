@@ -7,6 +7,7 @@ import android.content.Context
 import com.mrevellemonteiro.a2msiproject.model.Track
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.delay
 
 class GameViewModel : ViewModel() {
     private val deezerRepository = DeezerRepository()
@@ -23,7 +24,7 @@ class GameViewModel : ViewModel() {
     fun playNextSong() {
         viewModelScope.launch {
             try {
-                val tracks = deezerRepository.searchTracks("rock")
+                val tracks = deezerRepository.searchTracks("e")
                 if (tracks.isNotEmpty()) {
                     currentTrack = tracks.random()
                     currentTrack?.preview?.let { previewUrl ->
@@ -44,13 +45,21 @@ class GameViewModel : ViewModel() {
 
         // Arrêter après 30 secondes
         viewModelScope.launch {
-            kotlinx.coroutines.delay(30000)
+            delay(30000)
             audioPlayer.pause()
         }
     }
 
     fun checkGuess(guess: String): Boolean {
-        return guess.equals(currentTrack?.title, ignoreCase = true)
+        fun cleanTitle(title: String): String {
+            return title.replace(Regex("\\s*\\([^)]*\\)"), "")  // Supprime les parenthèses et leur contenu
+                .replace(Regex("\\s*\\[[^]]*\\]"), "")  // Supprime les crochets et leur contenu
+                .trim()
+        }
+
+        val cleanedGuess = cleanTitle(guess)
+        val cleanedTrackTitle = currentTrack?.title?.let { cleanTitle(it) } ?: return false
+        return cleanedGuess.equals(cleanedTrackTitle, ignoreCase = true)
     }
 
     override fun onCleared() {
