@@ -12,4 +12,13 @@ class DeezerRepository {
             emptyList()
         }
     }
+
+    suspend fun getTrack(id: Long): Track? {
+        val response = DeezerApi.service.getTrack(id)
+        return if (response.isSuccessful) {
+            response.body()
+        } else {
+            null
+        }
+    }
 }
