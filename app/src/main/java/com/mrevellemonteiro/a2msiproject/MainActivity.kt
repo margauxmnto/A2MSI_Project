@@ -3,19 +3,23 @@ package com.mrevellemonteiro.a2msiproject
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
 import com.mrevellemonteiro.a2msiproject.ui.theme.A2MSIProjectTheme
 
 class MainActivity : ComponentActivity() {
-    private val gameViewModel = GameViewModel()
+    private val gameViewModel: GameViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        gameViewModel.initialize(this)
         setContent {
             A2MSIProjectTheme {
                 Surface(
@@ -32,7 +36,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GameScreen(viewModel: GameViewModel) {
     var guess by remember { mutableStateOf("") }
-    var score by remember { mutableStateOf(0) }
+    var score by remember { mutableIntStateOf(0) }
+    val errorMessage by viewModel.errorMessage.collectAsState(initial = null)
 
     Column(
         modifier = Modifier
@@ -63,6 +68,9 @@ fun GameScreen(viewModel: GameViewModel) {
             guess = ""
         }) {
             Text("Deviner")
+        }
+        errorMessage?.let {
+            Text(text = it, color = Color.Red)
         }
     }
 }
