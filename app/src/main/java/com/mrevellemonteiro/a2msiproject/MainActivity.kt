@@ -9,13 +9,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.activity.viewModels
 import com.mrevellemonteiro.a2msiproject.ui.theme.A2MSIProjectTheme
 
 class MainActivity : ComponentActivity() {
-    private val gameViewModel = GameViewModel()
+    private val gameViewModel: GameViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        gameViewModel.initialize(this)
         setContent {
             A2MSIProjectTheme {
                 Surface(
