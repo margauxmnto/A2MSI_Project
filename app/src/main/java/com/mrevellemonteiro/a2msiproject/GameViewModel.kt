@@ -21,7 +21,7 @@ class GameViewModel : ViewModel() {
                     // Par exemple, en utilisant un MediaPlayer
                 }
             } catch (e: Exception) {
-                // Gérer les erreurs, par exemple en les affichant à l'utilisateur
+                // Gérer les erreurs, par exemple en les affichant à l'utilisateur gang
             }
         }
     }
