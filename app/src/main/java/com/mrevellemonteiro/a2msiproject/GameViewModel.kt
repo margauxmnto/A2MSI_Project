@@ -23,7 +23,7 @@ class GameViewModel : ViewModel() {
     fun playNextSong() {
         viewModelScope.launch {
             try {
-                val tracks = deezerRepository.searchTracks("pop")
+                val tracks = deezerRepository.searchTracks("rock")
                 if (tracks.isNotEmpty()) {
                     currentTrack = tracks.random()
                     currentTrack?.preview?.let { previewUrl ->
