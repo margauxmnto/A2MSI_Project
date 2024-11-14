@@ -13,6 +13,7 @@ data class Track(
 )
 
 data class Artist(
+    val id: Long,
     val name: String
 )
 

@@ -12,6 +12,8 @@ class GameViewModel : ViewModel() {
     private val deezerRepository = DeezerRepository()
     private var currentTrack: Track? = null
     private lateinit var audioPlayer: AudioPlayer
+    private val _artistGuess = MutableStateFlow("")
+    val artistGuess: StateFlow<String> = _artistGuess
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
@@ -20,10 +22,14 @@ class GameViewModel : ViewModel() {
         audioPlayer = AudioPlayer(context)
     }
 
+    fun updateArtistGuess(guess: String) {
+        _artistGuess.value = guess
+    }
+
     fun playNextSong() {
         viewModelScope.launch {
             try {
-                val tracks = deezerRepository.searchTracks("rock")
+                val tracks = deezerRepository.searchTracks("e")
                 if (tracks.isNotEmpty()) {
                     currentTrack = tracks.random()
                     currentTrack?.preview?.let { previewUrl ->
@@ -49,8 +55,10 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    fun checkGuess(guess: String): Boolean {
-        return guess.equals(currentTrack?.title, ignoreCase = true)
+    fun checkGuess(titleGuess: String, artistGuess: String): Boolean {
+        val titleCorrect = titleGuess.equals(currentTrack?.title, ignoreCase = true)
+        val artistCorrect = artistGuess.equals(currentTrack?.artist?.name, ignoreCase = true)
+        return titleCorrect && artistCorrect
     }
 
     override fun onCleared() {

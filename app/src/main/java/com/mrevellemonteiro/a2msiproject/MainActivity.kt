@@ -35,8 +35,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GameScreen(viewModel: GameViewModel) {
-    var guess by remember { mutableStateOf("") }
-    var score by remember { mutableIntStateOf(0) }
+    var titleGuess by remember { mutableStateOf("") }
+    var artistGuess by remember { mutableStateOf("") }
+    var score by remember { mutableStateOf(0) }
     val errorMessage by viewModel.errorMessage.collectAsState(initial = null)
 
     Column(
@@ -56,21 +57,33 @@ fun GameScreen(viewModel: GameViewModel) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         TextField(
-            value = guess,
-            onValueChange = { guess = it },
+            value = titleGuess,
+            onValueChange = { titleGuess = it },
             label = { Text("Entrez le titre de la chanson") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = artistGuess,
+            onValueChange = { artistGuess = it },
+            label = { Text("Entrez le nom de l'artiste") }
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
-            if (viewModel.checkGuess(guess)) {
+            if (viewModel.checkGuess(titleGuess, artistGuess)) {
                 score++
+                titleGuess = ""
+                artistGuess = ""
             }
-            guess = ""
         }) {
             Text("Deviner")
         }
+
         errorMessage?.let {
-            Text(text = it, color = Color.Red)
+            Text(
+                text = it,
+                color = Color.Red,
+                modifier = Modifier.padding(top = 16.dp)
+            )
         }
     }
 }
