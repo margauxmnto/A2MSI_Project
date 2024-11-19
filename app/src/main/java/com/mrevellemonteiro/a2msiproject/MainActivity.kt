@@ -1,6 +1,7 @@
 package com.mrevellemonteiro.a2msiproject
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -13,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
 import com.mrevellemonteiro.a2msiproject.ui.theme.A2MSIProjectTheme
+import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : ComponentActivity() {
     private val gameViewModel: GameViewModel by viewModels()
@@ -35,9 +37,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GameScreen(viewModel: GameViewModel) {
-    var titleGuess by remember { mutableStateOf("") }
-    var artistGuess by remember { mutableStateOf("") }
-    var score by remember { mutableStateOf(0) }
+    val context = LocalContext.current
+    val titleGuess by viewModel.titleGuess.collectAsState()
+    val artistGuess by viewModel.artistGuess.collectAsState()
+    val score by viewModel.score.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState(initial = null)
 
     Column(
@@ -58,25 +61,29 @@ fun GameScreen(viewModel: GameViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
         TextField(
             value = titleGuess,
-            onValueChange = { titleGuess = it },
+            onValueChange = { viewModel.updateTitleGuess(it) },
             label = { Text("Entrez le titre de la chanson") }
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
             value = artistGuess,
-            onValueChange = { artistGuess = it },
+            onValueChange = { viewModel.updateArtistGuess(it) },
             label = { Text("Entrez le nom de l'artiste") }
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
-            if (viewModel.checkGuess(titleGuess, artistGuess)) {
-                score++
-                titleGuess = ""
-                artistGuess = ""
+            val pointsEarned = viewModel.checkGuess(titleGuess, artistGuess)
+            when (pointsEarned) {
+                0 -> Toast.makeText(context, "Désolé, aucune bonne réponse.", Toast.LENGTH_SHORT).show()
+                1 -> Toast.makeText(context, "Bravo ! Vous avez gagné 1 point !", Toast.LENGTH_SHORT).show()
+                2 -> Toast.makeText(context, "Excellent ! Vous avez gagné 2 points !", Toast.LENGTH_SHORT).show()
             }
+            viewModel.resetGuesses()
+            viewModel.playNextSong()
         }) {
             Text("Deviner")
         }
+
 
         errorMessage?.let {
             Text(

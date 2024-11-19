@@ -12,14 +12,25 @@ class GameViewModel : ViewModel() {
     private val deezerRepository = DeezerRepository()
     private var currentTrack: Track? = null
     private lateinit var audioPlayer: AudioPlayer
+
     private val _artistGuess = MutableStateFlow("")
     val artistGuess: StateFlow<String> = _artistGuess
+
+    private val _titleGuess = MutableStateFlow("")
+    val titleGuess: StateFlow<String> = _titleGuess
+
+    private val _score = MutableStateFlow(0)
+    val score: StateFlow<Int> = _score
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
     fun initialize(context: Context) {
         audioPlayer = AudioPlayer(context)
+    }
+
+    fun updateTitleGuess(guess: String) {
+        _titleGuess.value = guess
     }
 
     fun updateArtistGuess(guess: String) {
@@ -44,21 +55,23 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    private fun playTrack(track: Track) {
-        audioPlayer.reset()
-        audioPlayer.playAudio(track.preview)
-
-        // Arrêter après 30 secondes
-        viewModelScope.launch {
-            kotlinx.coroutines.delay(30000)
-            audioPlayer.pause()
+    fun checkGuess(titleGuess: String, artistGuess: String): Int {
+        var pointsEarned = 0
+        currentTrack?.let { track ->
+            if (titleGuess.equals(track.title, ignoreCase = true)) {
+                pointsEarned++
+            }
+            if (artistGuess.equals(track.artist.name, ignoreCase = true)) {
+                pointsEarned++
+            }
         }
+        _score.value += pointsEarned
+        return pointsEarned
     }
 
-    fun checkGuess(titleGuess: String, artistGuess: String): Boolean {
-        val titleCorrect = titleGuess.equals(currentTrack?.title, ignoreCase = true)
-        val artistCorrect = artistGuess.equals(currentTrack?.artist?.name, ignoreCase = true)
-        return titleCorrect && artistCorrect
+    fun resetGuesses() {
+        _titleGuess.value = ""
+        _artistGuess.value = ""
     }
 
     override fun onCleared() {
