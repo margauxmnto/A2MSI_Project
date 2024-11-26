@@ -41,6 +41,7 @@ android {
 
 dependencies {
 
+    implementation("com.airbnb.android:lottie-compose:5.0.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -59,6 +60,7 @@ dependencies {
     implementation ("androidx.activity:activity-compose:1.4.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
