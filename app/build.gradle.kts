@@ -40,8 +40,10 @@ android {
 }
 
 dependencies {
-
-    implementation("com.airbnb.android:lottie-compose:5.0.0")
+    implementation(libs.androidx.foundation)
+    implementation(libs.material3)
+    implementation(libs.androidx.runtime)
+    implementation(libs.lottie.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -49,17 +51,11 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
-    implementation ("androidx.core:core-ktx:1.15.0")
-    implementation ("androidx.compose.ui:ui:1.7.5")
-    implementation ("androidx.compose.material:material:1.7.5")
-    implementation ("androidx.compose.ui:ui-tooling-preview:1.7.5")
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-    implementation ("androidx.activity:activity-compose:1.9.3")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation(libs.androidx.material)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
