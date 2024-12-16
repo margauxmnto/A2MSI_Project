@@ -96,7 +96,7 @@ fun GameScreen(viewModel: GameViewModel) {
             options.forEach { option ->
                 Button(onClick = {
                     if (viewModel.checkEasyGuess(option)) {
-                        Toast.makeText(context, "Bonne réponse !", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Bonne réponse, vous avez gagné 1 point !", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(context, "Mauvaise réponse.", Toast.LENGTH_SHORT).show()
                     }
