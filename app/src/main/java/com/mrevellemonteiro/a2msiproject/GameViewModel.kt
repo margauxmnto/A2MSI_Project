@@ -29,14 +29,15 @@ class GameViewModel : ViewModel() {
     val score: StateFlow<Int> = _score
 
     // État pour le niveau de jeu
-    private var gameLevel: String = "hard" // Niveau par défaut
+    private val _gameLevel = MutableStateFlow("hard")
+    val gameLevel: StateFlow<String> = _gameLevel // Niveau par défaut
 
     // Piste actuelle
     private var currentTrack: Track? = null
 
     // Méthode pour définir le niveau de jeu
     fun setGameLevel(level: String) {
-        gameLevel = level
+        _gameLevel.value = level
         playNextSong() // Joue une chanson au niveau sélectionné
     }
 
@@ -71,8 +72,12 @@ class GameViewModel : ViewModel() {
     }
 
     // Vérifier les devinettes pour le niveau facile
-    fun checkEasyGuess(option: String): Boolean {
-        return option.equals(currentTrack?.title, ignoreCase = true)
+    fun checkEasyGuess(selectedOption: String): Boolean {
+        val isCorrect = selectedOption == currentTrack?.title
+        if (isCorrect) {
+            _score.value += 1 // Augmenter le score de 1 point
+        }
+        return isCorrect
     }
 
     // Jouer la prochaine chanson et préparer les options si nécessaire
@@ -82,7 +87,7 @@ class GameViewModel : ViewModel() {
                 val tracks = deezerRepository.searchTracks("e") // Remplacez par votre logique de recherche de pistes
                 if (tracks.isNotEmpty()) {
                     currentTrack = tracks.random()
-                    if (gameLevel == "easy") {
+                    if (_gameLevel.value == "easy") {
                         val correctTitle = currentTrack?.title ?: ""
                         val optionsList = mutableListOf(correctTitle)
 
