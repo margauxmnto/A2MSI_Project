@@ -9,58 +9,53 @@ import kotlinx.coroutines.launch
 
 class GameViewModel : ViewModel() {
     private val deezerRepository = DeezerRepository()
-    private var currentTrack: Track? = null
-    private var gameLevel: String = "hard"
 
-    // StateFlow pour gérer le score
-    private val _score = MutableStateFlow(0)
-    val score: StateFlow<Int> = _score
-
-    // StateFlow pour gérer les messages d'erreur
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    // StateFlow pour gérer les options de réponse (pour le niveau facile)
+    // État pour le titre et l'artiste devinés
+    private val _titleGuess = MutableStateFlow("")
+    val titleGuess: StateFlow<String> = _titleGuess
+
+    private val _artistGuess = MutableStateFlow("")
+    val artistGuess: StateFlow<String> = _artistGuess
+
+    // État pour les options dans le niveau facile
     private val _options = MutableStateFlow<List<String>>(emptyList())
     val options: StateFlow<List<String>> = _options
+
+    // État pour le score
+    private val _score = MutableStateFlow(0)
+    val score: StateFlow<Int> = _score
+
+    // État pour le niveau de jeu
+    private var gameLevel: String = "hard" // Niveau par défaut
+
+    // Piste actuelle
+    private var currentTrack: Track? = null
 
     // Méthode pour définir le niveau de jeu
     fun setGameLevel(level: String) {
         gameLevel = level
-        resetGuesses() // Réinitialiser les entrées lorsque le niveau change
+        playNextSong() // Joue une chanson au niveau sélectionné
     }
 
-    // Méthode pour jouer la prochaine chanson
-    fun playNextSong() {
-        viewModelScope.launch {
-            try {
-                val tracks = deezerRepository.searchTracks("pop")
-                if (tracks.isNotEmpty()) {
-                    currentTrack = tracks.random()
-                    if (gameLevel == "easy") {
-                        generateEasyOptions(tracks)
-                    } else {
-                        // Logique pour le niveau difficile (titre et artiste)
-                        _options.value = emptyList() // Pas d'options à afficher en mode difficile
-                    }
-                } else {
-                    _errorMessage.value = "Aucune piste trouvée"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Erreur: ${e.message}"
-            }
-        }
+    // Méthodes pour mettre à jour les devinettes
+    fun updateTitleGuess(guess: String) {
+        _titleGuess.value = guess
     }
 
-    // Génère des options de réponse pour le niveau facile
-    private fun generateEasyOptions(tracks: List<Track>) {
-        val correctAnswer = currentTrack?.title ?: ""
-        val incorrectAnswers = tracks.filter { it.title != correctAnswer }.shuffled().take(3).map { it.title }
-        val allOptions = (incorrectAnswers + correctAnswer).shuffled() // Mélanger les réponses
-        _options.value = allOptions
+    fun updateArtistGuess(guess: String) {
+        _artistGuess.value = guess
     }
 
-    // Méthode pour vérifier les réponses de l'utilisateur
+    // Réinitialiser les devinettes
+    fun resetGuesses() {
+        _titleGuess.value = ""
+        _artistGuess.value = ""
+    }
+
+    // Vérifier les devinettes pour le niveau difficile
     fun checkGuess(titleGuess: String, artistGuess: String): Int {
         var pointsEarned = 0
         currentTrack?.let { track ->
@@ -71,21 +66,43 @@ class GameViewModel : ViewModel() {
                 pointsEarned++
             }
         }
-        _score.value += pointsEarned
+        _score.value += pointsEarned // Mettre à jour le score total
         return pointsEarned
     }
 
-    // Méthode pour réinitialiser les champs de saisie après une tentative
-    fun resetGuesses() {
-        // Réinitialiser les entrées utilisateur si nécessaire, par exemple :
-        // _titleGuess.value = ""
-        // _artistGuess.value = ""
-        // Ou toute autre logique nécessaire pour réinitialiser l'état du jeu.
-        _options.value = emptyList() // Réinitialiser les options également.
+    // Vérifier les devinettes pour le niveau facile
+    fun checkEasyGuess(option: String): Boolean {
+        return option.equals(currentTrack?.title, ignoreCase = true)
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        // Libération des ressources si nécessaire.
+    // Jouer la prochaine chanson et préparer les options si nécessaire
+    fun playNextSong() {
+        viewModelScope.launch {
+            try {
+                val tracks = deezerRepository.searchTracks("e") // Remplacez par votre logique de recherche de pistes
+                if (tracks.isNotEmpty()) {
+                    currentTrack = tracks.random()
+                    if (gameLevel == "easy") {
+                        val correctTitle = currentTrack?.title ?: ""
+                        val optionsList = mutableListOf(correctTitle)
+
+                        // Ajouter 3 titres incorrects
+                        val incorrectTracks = tracks.filter { it.title != correctTitle }.shuffled().take(3)
+                        optionsList.addAll(incorrectTracks.map { it.title }) // Ajouter les titres incorrects
+                        optionsList.shuffle() // Mélanger les options
+                        _options.value = optionsList // Mettre à jour les options affichées à l'utilisateur
+                    } else {
+                        // Logique pour le niveau difficile (ne rien faire ici)
+                        _options.value = emptyList()
+                    }
+                } else {
+                    // Gérer le cas où aucune piste n'est trouvée
+                    _errorMessage.value = "Aucune piste trouvée"
+                }
+            } catch (e: Exception) {
+                // Gérer les erreurs potentielles lors de la recherche de pistes
+                _errorMessage.value = "Erreur: ${e.message}"
+            }
+        }
     }
 }

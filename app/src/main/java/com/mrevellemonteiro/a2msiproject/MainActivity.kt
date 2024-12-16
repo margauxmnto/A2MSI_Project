@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
 import com.mrevellemonteiro.a2msiproject.ui.theme.A2MSIProjectTheme
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.collectAsState
+
 
 class MainActivity : ComponentActivity() {
     private val gameViewModel: GameViewModel by viewModels()
@@ -49,7 +51,7 @@ fun HomeScreen(onLevelSelected: (String) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Choisissez un niveau", style = MaterialTheme.typography.h4)
+        Text(text = "Choisissez un niveau", style = MaterialTheme.typography.headlineMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
 
