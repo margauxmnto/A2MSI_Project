@@ -18,19 +18,49 @@ import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : ComponentActivity() {
     private val gameViewModel: GameViewModel by viewModels()
+    private var selectedLevel by mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        gameViewModel.initialize(this)
         setContent {
             A2MSIProjectTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    GameScreen(gameViewModel)
+                    if (selectedLevel.isEmpty()) {
+                        HomeScreen { level ->
+                            selectedLevel = level
+                            gameViewModel.setGameLevel(level) // Méthode pour définir le niveau dans le ViewModel
+                        }
+                    } else {
+                        GameScreen(gameViewModel)
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun HomeScreen(onLevelSelected: (String) -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Choisissez un niveau", style = MaterialTheme.typography.h4)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = { onLevelSelected("easy") }) {
+            Text("Niveau Facile")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(onClick = { onLevelSelected("hard") }) {
+            Text("Niveau Difficile")
         }
     }
 }
@@ -41,6 +71,8 @@ fun GameScreen(viewModel: GameViewModel) {
     val titleGuess by viewModel.titleGuess.collectAsState()
     val artistGuess by viewModel.artistGuess.collectAsState()
     val score by viewModel.score.collectAsState()
+    val options by viewModel.options.collectAsState() // Options pour le niveau facile
+    val currentLevel by viewModel.gameLevel.collectAsState() // Niveau de jeu actuel
     val errorMessage by viewModel.errorMessage.collectAsState(initial = null)
 
     Column(
@@ -55,35 +87,50 @@ fun GameScreen(viewModel: GameViewModel) {
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { viewModel.playNextSong() }) {
-            Text("Jouer l'extrait")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = titleGuess,
-            onValueChange = { viewModel.updateTitleGuess(it) },
-            label = { Text("Entrez le titre de la chanson") }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = artistGuess,
-            onValueChange = { viewModel.updateArtistGuess(it) },
-            label = { Text("Entrez le nom de l'artiste") }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            val pointsEarned = viewModel.checkGuess(titleGuess, artistGuess)
-            when (pointsEarned) {
-                0 -> Toast.makeText(context, "Désolé, aucune bonne réponse.", Toast.LENGTH_SHORT).show()
-                1 -> Toast.makeText(context, "Bravo ! Vous avez gagné 1 point !", Toast.LENGTH_SHORT).show()
-                2 -> Toast.makeText(context, "Excellent ! Vous avez gagné 2 points !", Toast.LENGTH_SHORT).show()
-            }
-            viewModel.resetGuesses()
-            viewModel.playNextSong()
-        }) {
-            Text("Deviner")
-        }
 
+        if (currentLevel == "easy") {
+            // Affichage des options pour le niveau facile
+            Text(text = "Choisissez la bonne réponse :")
+            options.forEach { option ->
+                Button(onClick = {
+                    if (viewModel.checkEasyGuess(option)) {
+                        Toast.makeText(context, "Bonne réponse !", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Mauvaise réponse.", Toast.LENGTH_SHORT).show()
+                    }
+                    viewModel.playNextSong() // Joue automatiquement la chanson suivante
+                }) {
+                    Text(option)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        } else {
+            // Logique pour le niveau difficile avec les champs de texte
+            TextField(
+                value = titleGuess,
+                onValueChange = { viewModel.updateTitleGuess(it) },
+                label = { Text("Entrez le titre de la chanson") }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = artistGuess,
+                onValueChange = { viewModel.updateArtistGuess(it) },
+                label = { Text("Entrez le nom de l'artiste") }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = {
+                val pointsEarned = viewModel.checkGuess(titleGuess, artistGuess)
+                when (pointsEarned) {
+                    0 -> Toast.makeText(context, "Désolé, aucune bonne réponse.", Toast.LENGTH_SHORT).show()
+                    1 -> Toast.makeText(context, "Bravo ! Vous avez gagné 1 point !", Toast.LENGTH_SHORT).show()
+                    2 -> Toast.makeText(context, "Excellent ! Vous avez gagné 2 points !", Toast.LENGTH_SHORT).show()
+                }
+                viewModel.resetGuesses() // Réinitialise les champs de saisie
+                viewModel.playNextSong() // Joue automatiquement la chanson suivante
+            }) {
+                Text("Deviner")
+            }
+        }
 
         errorMessage?.let {
             Text(
