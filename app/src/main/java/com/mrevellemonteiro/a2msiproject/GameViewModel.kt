@@ -71,6 +71,12 @@ class GameViewModel : ViewModel() {
         return pointsEarned
     }
 
+    fun resetGame() {
+        _score.value = 0
+        _gameLevel.value = ""
+        // Réinitialisez d'autres états si nécessaire
+    }
+
     // Vérifier les devinettes pour le niveau facile
     fun checkEasyGuess(selectedOption: String): Boolean {
         val isCorrect = selectedOption == currentTrack?.title
