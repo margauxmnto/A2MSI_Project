@@ -74,6 +74,9 @@ class GameViewModel : ViewModel() {
             }
         }
         _score.value += pointsEarned // Mettre à jour le score total
+        if (pointsEarned > 0) {
+            playNextSong()
+        }
         return pointsEarned
     }
 
@@ -89,6 +92,7 @@ class GameViewModel : ViewModel() {
         val isCorrect = selectedOption == currentTrack?.title
         if (isCorrect) {
             _score.value += 1 // Augmenter le score de 1 point
+            playNextSong()
         }
         return isCorrect
     }
@@ -97,35 +101,32 @@ class GameViewModel : ViewModel() {
     fun playNextSong() {
         viewModelScope.launch {
             try {
-                val tracks = deezerRepository.searchTracks("e") // Remplacez par votre logique de recherche de pistes
+                val tracks = deezerRepository.searchTracks("e") // Remplacez par votre logique de recherche
                 if (tracks.isNotEmpty()) {
                     currentTrack = tracks.random()
+                    _previewUrl.value = currentTrack?.preview ?: ""
+
                     if (_gameLevel.value == "easy") {
                         val correctTitle = currentTrack?.title ?: ""
                         val optionsList = mutableListOf(correctTitle)
 
                         // Ajouter 3 titres incorrects
-                        val incorrectTracks =
-                            tracks.filter { it.title != correctTitle }.shuffled().take(3)
-                        optionsList.addAll(incorrectTracks.map { it.title }) // Ajouter les titres incorrects
-
-                        optionsList.shuffle() // Mélanger les options
-                        _options.value = optionsList // Mettre à jour les options affichées à l'utilisateur
+                        val incorrectTracks = tracks.filter { it.title != correctTitle }.shuffled().take(3)
+                        optionsList.addAll(incorrectTracks.map { it.title })
+                        optionsList.shuffle()
+                        _options.value = optionsList // Mettre à jour les options affichées
                     } else {
-                        // Logique pour le niveau difficile (ne rien faire ici)
-                        _options.value = emptyList()
+                        _options.value = emptyList() // Pas d'options pour le niveau difficile
                     }
-                    _previewUrl.value = currentTrack?.preview ?: ""
                 } else {
-                    // Gérer le cas où aucune piste n'est trouvée
                     _errorMessage.value = "Aucune piste trouvée"
                 }
             } catch (e: Exception) {
-                // Gérer les erreurs potentielles lors de la recherche de pistes
-                _errorMessage.value = "Erreur: ${e.message}"
+                _errorMessage.value = "Erreur : ${e.message}"
             }
         }
     }
+
     fun playPreview() {
         _previewUrl.value?.let { url ->
             mediaPlayer?.release() // Libère les ressources du lecteur précédent
