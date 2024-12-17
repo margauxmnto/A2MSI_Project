@@ -102,7 +102,7 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(onClick = { viewModel.playNextSong() }) {
+            Button(onClick = { viewModel.playPreview() }) {
                 Text("Jouer l'extrait")
             }
 
