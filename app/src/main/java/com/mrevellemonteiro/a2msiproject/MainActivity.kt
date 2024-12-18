@@ -108,6 +108,12 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            Button(onClick = { viewModel.playNextSong() }) {
+                Text("Changer de chanson")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             if (currentLevel == "easy") {
                 // Affichage des options pour le niveau facile
                 Text(text = "Choisissez la bonne réponse :")
