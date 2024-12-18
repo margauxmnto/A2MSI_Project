@@ -34,7 +34,7 @@ class GameViewModel : ViewModel() {
     val score: StateFlow<Int> = _score
 
     // État pour le niveau de jeu
-    private val _gameLevel = MutableStateFlow("hard")
+    private val _gameLevel = MutableStateFlow("")
     val gameLevel: StateFlow<String> = _gameLevel // Niveau par défaut
 
     // Piste actuelle
