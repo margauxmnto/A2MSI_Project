@@ -12,28 +12,20 @@ import kotlinx.coroutines.launch
 class GameViewModel : ViewModel() {
 
     private val deezerRepository = DeezerRepository()
-    private val playlistId = 10792003862L // ID de la playlist
-
+    private var playlistId: Long = 10792003862L // ID de la playlist
     private val _previewUrl = MutableStateFlow<String?>(null)
-
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
-
     private val _titleGuess = MutableStateFlow("")
     val titleGuess: StateFlow<String> = _titleGuess
-
     private val _artistGuess = MutableStateFlow("")
     val artistGuess: StateFlow<String> = _artistGuess
-
     private val _options = MutableStateFlow<List<String>>(emptyList())
     val options: StateFlow<List<String>> = _options
-
     private val _score = MutableStateFlow(0)
     val score: StateFlow<Int> = _score
-
     private val _gameLevel = MutableStateFlow("")
     val gameLevel: StateFlow<String> = _gameLevel
-
     private var currentTrack: Track? = null
     private var mediaPlayer: MediaPlayer? = null
     private var playlistTracks: List<Track> = emptyList()
@@ -62,6 +54,11 @@ class GameViewModel : ViewModel() {
         _titleGuess.value = guess
     }
 
+    fun stopMusic(){
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
     fun updateArtistGuess(guess: String) {
         _artistGuess.value = guess
     }
@@ -151,6 +148,11 @@ class GameViewModel : ViewModel() {
         } ?: run {
             println("Aucune URL disponible pour jouer l'extrait.")
         }
+    }
+
+    fun updatePlaylistId(newPlaylistId: Long) {
+        playlistId = newPlaylistId
+        loadPlaylistTracks() // Recharge les pistes avec la nouvelle playlist
     }
 
     override fun onCleared() {
