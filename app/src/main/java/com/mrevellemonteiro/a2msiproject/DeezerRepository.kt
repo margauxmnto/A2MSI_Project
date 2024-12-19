@@ -27,4 +27,18 @@ class DeezerRepository {
             null
         }
     }
+
+    suspend fun getPlaylistTracks(playlistId: Long): List<Track> {
+        return try {
+            val response = DeezerApi.service.getPlaylistTracks(playlistId)
+            if (response.isSuccessful) {
+                response.body()?.data ?: emptyList()
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e("DeezerRepository", "Error getting playlist tracks: ${e.message}")
+            emptyList()
+        }
+    }
 }

@@ -12,42 +12,52 @@ import kotlinx.coroutines.launch
 class GameViewModel : ViewModel() {
 
     private val deezerRepository = DeezerRepository()
+    private val playlistId = 10792003862L // ID de la playlist que vous avez fourni
 
     private val _previewUrl = MutableStateFlow<String?>(null)
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    // État pour le titre et l'artiste devinés
     private val _titleGuess = MutableStateFlow("")
     val titleGuess: StateFlow<String> = _titleGuess
 
     private val _artistGuess = MutableStateFlow("")
     val artistGuess: StateFlow<String> = _artistGuess
 
-    // État pour les options dans le niveau facile
     private val _options = MutableStateFlow<List<String>>(emptyList())
     val options: StateFlow<List<String>> = _options
 
-    // État pour le score
     private val _score = MutableStateFlow(0)
     val score: StateFlow<Int> = _score
 
-    // État pour le niveau de jeu
     private val _gameLevel = MutableStateFlow("")
-    val gameLevel: StateFlow<String> = _gameLevel // Niveau par défaut
+    val gameLevel: StateFlow<String> = _gameLevel
 
-    // Piste actuelle
     private var currentTrack: Track? = null
     private var mediaPlayer: MediaPlayer? = null
+    private var playlistTracks: List<Track> = emptyList()
 
-    // Méthode pour définir le niveau de jeu
     fun setGameLevel(level: String) {
         _gameLevel.value = level
-        playNextSong() // Joue une chanson au niveau sélectionné
+        loadPlaylistTracks()
     }
 
-    // Méthodes pour mettre à jour les devinettes
+    private fun loadPlaylistTracks() {
+        viewModelScope.launch {
+            try {
+                playlistTracks = deezerRepository.getPlaylistTracks(playlistId)
+                if (playlistTracks.isNotEmpty()) {
+                    playNextSong()
+                } else {
+                    _errorMessage.value = "Aucune piste trouvée dans la playlist"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Erreur lors du chargement de la playlist : ${e.message}"
+            }
+        }
+    }
+
     fun updateTitleGuess(guess: String) {
         _titleGuess.value = guess
     }
@@ -56,13 +66,11 @@ class GameViewModel : ViewModel() {
         _artistGuess.value = guess
     }
 
-    // Réinitialiser les devinettes
     fun resetGuesses() {
         _titleGuess.value = ""
         _artistGuess.value = ""
     }
 
-    // Vérifier les devinettes pour le niveau difficile
     fun checkGuess(titleGuess: String, artistGuess: String): Int {
         var pointsEarned = 0
         currentTrack?.let { track ->
@@ -73,7 +81,7 @@ class GameViewModel : ViewModel() {
                 pointsEarned++
             }
         }
-        _score.value += pointsEarned // Mettre à jour le score total
+        _score.value += pointsEarned
         if (pointsEarned > 0) {
             playNextSong()
         }
@@ -84,52 +92,42 @@ class GameViewModel : ViewModel() {
         _score.value = 0
         _gameLevel.value = ""
         resetGuesses()
-        // Réinitialisez d'autres états si nécessaire
+        playlistTracks = emptyList()
     }
 
-    // Vérifier les devinettes pour le niveau facile
     fun checkEasyGuess(selectedOption: String): Boolean {
         val isCorrect = selectedOption == currentTrack?.title
         if (isCorrect) {
-            _score.value += 1 // Augmenter le score de 1 point
+            _score.value += 1
             playNextSong()
         }
         return isCorrect
     }
 
-    // Jouer la prochaine chanson et préparer les options si nécessaire
     fun playNextSong() {
-        viewModelScope.launch {
-            try {
-                val tracks = deezerRepository.searchTracks("e") // Remplacez par votre logique de recherche
-                if (tracks.isNotEmpty()) {
-                    currentTrack = tracks.random()
-                    _previewUrl.value = currentTrack?.preview ?: ""
+        if (playlistTracks.isNotEmpty()) {
+            currentTrack = playlistTracks.random()
+            _previewUrl.value = currentTrack?.preview ?: ""
 
-                    if (_gameLevel.value == "easy") {
-                        val correctTitle = currentTrack?.title ?: ""
-                        val optionsList = mutableListOf(correctTitle)
+            if (_gameLevel.value == "easy") {
+                val correctTitle = currentTrack?.title ?: ""
+                val optionsList = mutableListOf(correctTitle)
 
-                        // Ajouter 3 titres incorrects
-                        val incorrectTracks = tracks.filter { it.title != correctTitle }.shuffled().take(3)
-                        optionsList.addAll(incorrectTracks.map { it.title })
-                        optionsList.shuffle()
-                        _options.value = optionsList // Mettre à jour les options affichées
-                    } else {
-                        _options.value = emptyList() // Pas d'options pour le niveau difficile
-                    }
-                } else {
-                    _errorMessage.value = "Aucune piste trouvée"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Erreur : ${e.message}"
+                val incorrectTracks = playlistTracks.filter { it.title != correctTitle }.shuffled().take(3)
+                optionsList.addAll(incorrectTracks.map { it.title })
+                optionsList.shuffle()
+                _options.value = optionsList
+            } else {
+                _options.value = emptyList()
             }
+        } else {
+            _errorMessage.value = "Aucune piste disponible dans la playlist"
         }
     }
 
     fun playPreview() {
         _previewUrl.value?.let { url ->
-            mediaPlayer?.release() // Libère les ressources du lecteur précédent
+            mediaPlayer?.release()
             mediaPlayer = MediaPlayer().apply {
                 try {
                     setAudioAttributes(
@@ -138,9 +136,9 @@ class GameViewModel : ViewModel() {
                             .setUsage(AudioAttributes.USAGE_MEDIA)
                             .build()
                     )
-                    setDataSource(url) // Définit la source audio avec l'URL d'extrait
-                    prepareAsync() // Prépare le lecteur en arrière-plan (asynchrone)
-                    setOnPreparedListener { start() } // Joue l'extrait une fois prêt
+                    setDataSource(url)
+                    prepareAsync()
+                    setOnPreparedListener { start() }
 
                     setOnErrorListener { _, what, extra ->
                         println("Erreur MediaPlayer : what=$what, extra=$extra")
@@ -157,6 +155,6 @@ class GameViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        mediaPlayer?.release() // Libère les ressources du MediaPlayer lors de la destruction du ViewModel
+        mediaPlayer?.release()
     }
 }
