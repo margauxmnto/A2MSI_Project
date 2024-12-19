@@ -125,9 +125,14 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
                                 "Bonne réponse, vous avez gagné 1 point !",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            viewModel.playNextSong()// Joue automatiquement la chanson suivante
+                            viewModel.playPreview()
                         } else {
                             Toast.makeText(context, "Mauvaise réponse.", Toast.LENGTH_SHORT).show()
-                        } // Joue automatiquement la chanson suivante
+                            viewModel.playNextSong()// Joue automatiquement la chanson suivante
+                            viewModel.playPreview()
+                        }
+
                     }) {
                         Text(option)
                     }
@@ -169,6 +174,7 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
                         ).show()
                     }
                     viewModel.resetGuesses() // Réinitialise les champs de saisie
+                    viewModel.playPreview()
                 }) {
                     Text("Deviner")
                 }
