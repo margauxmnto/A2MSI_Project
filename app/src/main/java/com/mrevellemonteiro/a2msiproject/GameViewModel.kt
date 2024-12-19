@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 class GameViewModel : ViewModel() {
 
     private val deezerRepository = DeezerRepository()
-    private val playlistId = 10792003862L // ID de la playlist que vous avez fourni
+    private val playlistId = 10792003862L // ID de la playlist
 
     private val _previewUrl = MutableStateFlow<String?>(null)
 
