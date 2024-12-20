@@ -1,4 +1,23 @@
 <resources>
     <string name="app_name">MusIQ</string>
     <string name="logo_description">Logo application</string>
+    <string name="Niveau">Choisissez un niveau</string>
+    <string name="facile">Niveau Facile</string>
+    <string name="difficile">Niveau Difficile</string>
+    <string name="Retour">Retour aux Menu</string>
+    <string name="Playlist">Modifier l\'ID de la playlist</string>
+    <string name="entrer_l_id_de_la_playlist_deezer">Entrer l\'ID de la playlist Deezer</string>
+    <string name="id_de_playlist">ID de playlist</string>
+    <string name="veuillez_entrer_un_id_valide">Veuillez entrer un ID valide.</string>
+    <string name="confirmer">Confirmer</string>
+    <string name="annuler">Annuler</string>
+    <string name="jouer_l_extrait">Jouer l\'extrait</string>
+    <string name="changer_de_chanson">Changer de chanson</string>
+    <string name="choisissez_la_bonne_r_ponse">Choisissez la bonne réponse :</string>
+    <string name="un_point">Bonne réponse, vous avez gagné 1 point !</string>
+    <string name="mauvaise_r_ponse">Mauvaise réponse.</string>
+    <string name="entrez_le_titre_de_la_chanson">Entrez le titre de la chanson</string>
+    <string name="entrez_le_nom_de_l_artiste">Entrez le nom de l\'artiste</string>
+    <string name="aucune_bonne_r_ponse">Désolé, aucune bonne réponse.</string>
+    <string name="excellent_vous_avez_gagn_2_points">Excellent ! Vous avez gagné 2 points !</string>
 </resources>

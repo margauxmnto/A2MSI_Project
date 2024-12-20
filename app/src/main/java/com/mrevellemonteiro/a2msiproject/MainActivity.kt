@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mrevellemonteiro.a2msiproject.ui.theme.A2MSIProjectTheme
 
@@ -62,15 +63,12 @@ fun HomeScreen(onLevelSelected: (String) -> Unit) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Image de fond
         Image(
             painter = painterResource(id = R.drawable.fond),
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize()
         )
-
-        // Contenu superposé
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,20 +77,20 @@ fun HomeScreen(onLevelSelected: (String) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Choisissez un niveau",
+                text = stringResource(R.string.Niveau),
                 style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = { onLevelSelected("easy") }) {
-                Text("Niveau Facile")
+                Text(stringResource(R.string.facile))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(onClick = { onLevelSelected("hard") }) {
-                Text("Niveau Difficile")
+                Text(stringResource(R.string.difficile))
             }
         }
     }
@@ -114,22 +112,19 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Image de fond
         Image(
             painter = painterResource(id = R.drawable.fond),
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize()
         )
-
-        // Bouton "Retour aux niveaux" aligné en haut à gauche
         Button(
             onClick = onBackToLevels,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(16.dp)
         ) {
-            Text("Retour aux niveaux")
+            Text(stringResource(R.string.Retour))
         }
 
         Column(
@@ -139,24 +134,22 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp)) // Laisser de l'espace sous le bouton "Retour"
+            Spacer(modifier = Modifier.height(32.dp))
 
             Button(onClick = { showDialog = true }) {
-                Text("Modifier l'ID de la playlist")
+                Text(stringResource(R.string.Playlist))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Affichage de la boîte de dialogue pour entrer l'ID de playlist
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
-                    title = { Text(text = "Entrer l'ID de la playlist Deezer") },
+                    title = { Text(text = stringResource(R.string.entrer_l_id_de_la_playlist_deezer)) },
                     text = {
                         TextField(
                             value = newPlaylistId,
                             onValueChange = { newPlaylistId = it },
-                            label = { Text("ID de playlist") },
+                            label = { Text(stringResource(R.string.id_de_playlist)) },
                             placeholder = { Text("10792003862") }
                         )
                     },
@@ -174,17 +167,17 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
                             } else {
                                 Toast.makeText(
                                     context,
-                                    "Veuillez entrer un ID valide.",
+                                    context.getString(R.string.veuillez_entrer_un_id_valide),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
                         }) {
-                            Text("Confirmer")
+                            Text(stringResource(R.string.confirmer))
                         }
                     },
                     dismissButton = {
                         Button(onClick = { showDialog = false }) {
-                            Text("Annuler")
+                            Text(stringResource(R.string.annuler))
                         }
                     }
                 )
@@ -211,16 +204,15 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Alignement horizontal des boutons "Jouer l'extrait" et "Changer de chanson"
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(onClick = { viewModel.playPreview() }) {
-                    Text("Jouer l'extrait")
+                    Text(stringResource(R.string.jouer_l_extrait))
                 }
                 Button(onClick = { viewModel.playNextSong() }) {
-                    Text("Changer de chanson")
+                    Text(stringResource(R.string.changer_de_chanson))
                 }
             }
 
@@ -239,7 +231,7 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Choisissez la bonne réponse :",
+                        text = stringResource(R.string.choisissez_la_bonne_r_ponse),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -262,13 +254,13 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
                                     if (viewModel.checkEasyGuess(option)) {
                                         Toast.makeText(
                                             context,
-                                            "Bonne réponse, vous avez gagné 1 point !",
+                                            context.getString(R.string.un_point),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     } else {
                                         Toast.makeText(
                                             context,
-                                            "Mauvaise réponse.",
+                                            context.getString(R.string.mauvaise_r_ponse),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -291,13 +283,13 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
                                     if (viewModel.checkEasyGuess(option)) {
                                         Toast.makeText(
                                             context,
-                                            "Bonne réponse, vous avez gagné 1 point !",
+                                            stringResource(R.string.un_point),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     } else {
                                         Toast.makeText(
                                             context,
-                                            "Mauvaise réponse.",
+                                            stringResource(R.string.mauvaise_r_ponse),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -315,13 +307,13 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
                 TextField(
                     value = titleGuess,
                     onValueChange = { viewModel.updateTitleGuess(it) },
-                    label = { Text("Entrez le titre de la chanson") }
+                    label = { Text(stringResource(R.string.entrez_le_titre_de_la_chanson)) }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(
                     value = artistGuess,
                     onValueChange = { viewModel.updateArtistGuess(it) },
-                    label = { Text("Entrez le nom de l'artiste") }
+                    label = { Text(stringResource(R.string.entrez_le_nom_de_l_artiste)) }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
@@ -329,23 +321,23 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
                     when (pointsEarned) {
                         0 -> Toast.makeText(
                             context,
-                            "Désolé, aucune bonne réponse.",
+                            context.getString(R.string.aucune_bonne_r_ponse),
                             Toast.LENGTH_SHORT
                         ).show()
                         1 -> Toast.makeText(
                             context,
-                            "Bravo ! Vous avez gagné 1 point !",
+                            context.getString(R.string.un_point),
                             Toast.LENGTH_SHORT
                         ).show()
                         2 -> Toast.makeText(
                             context,
-                            "Excellent ! Vous avez gagné 2 points !",
+                            context.getString(R.string.excellent_vous_avez_gagn_2_points),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
                     viewModel.resetGuesses()
                 }) {
-                    Text("Deviner")
+                    Text(stringResource(R.string.confirmer))
                 }
             }
 
