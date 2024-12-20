@@ -283,13 +283,13 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
                                     if (viewModel.checkEasyGuess(option)) {
                                         Toast.makeText(
                                             context,
-                                            stringResource(R.string.un_point),
+                                            context.getString(R.string.un_point),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     } else {
                                         Toast.makeText(
                                             context,
-                                            stringResource(R.string.mauvaise_r_ponse),
+                                            context.getString(R.string.mauvaise_r_ponse),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
