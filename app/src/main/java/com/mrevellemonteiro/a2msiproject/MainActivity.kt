@@ -211,7 +211,8 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
                 Button(onClick = { viewModel.playPreview() }) {
                     Text(stringResource(R.string.jouer_l_extrait))
                 }
-                Button(onClick = { viewModel.playNextSong() }) {
+                Button(onClick = { viewModel.playNextSong()
+                viewModel.playPreview()}) {
                     Text(stringResource(R.string.changer_de_chanson))
                 }
             }
