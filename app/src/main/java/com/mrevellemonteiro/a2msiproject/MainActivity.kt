@@ -239,7 +239,6 @@ fun GameScreen(viewModel: GameViewModel, onBackToLevels: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Boutons alignés en carré (2x2)
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
